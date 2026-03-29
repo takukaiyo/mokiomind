@@ -4,9 +4,9 @@
 # @File    : model.py
 # @Software: PyCharm
 import math
-from typing import Optional ,Tuple
-
+from typing import Optional, Tuple
 from transformers import PretrainedConfig
+from torch.nn import functional as F
 
 
 class MokioMindConfig(PretrainedConfig):
@@ -267,9 +267,21 @@ class Attention(nn.Module):
                 past_key_value: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
                 use_cache=False,
                 attention_mask: Optional[torch.Tensor] = None):
+        """
+        :param x:
+        :param position_embeddings:
+        :param past_key_value:
+        :param use_cache:
+        :param attention_mask:
+        :return:
+        1、投影，计算Q、K、V
+        2、应用RoPE位置编码
+        3、Q和 V使用repeat
+        4、进行attention
+        5、拼接返回投影
+        """
         # x: [batch_size, seq_len, hidden]
         bsz, seq_len, _ = x.shape
-
         # 线性投影为Q,K,V
         # q_proj: hidden -> num_heads * head_dim
         # k_proj/v_proj: hidden -> num_kv_heads * head_dim (GQA情形)
