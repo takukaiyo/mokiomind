@@ -4,7 +4,7 @@
 # @File    : model.py
 # @Software: PyCharm
 import math
-from typing import Optional, Tuple, List,Union
+from typing import Optional, Tuple, List, Union
 from transformers import PretrainedConfig, PreTrainedModel, GenerationMixin
 from torch.nn import functional as F
 from transformers.activations import ACT2FN
@@ -494,7 +494,6 @@ class MokioMindModel(nn.Module):
         return hidden_states, presents
 
 
-
 class MokioMindForCausalLM(PreTrainedModel, GenerationMixin):
     config_class = MokioMindConfig
 
@@ -505,14 +504,14 @@ class MokioMindForCausalLM(PreTrainedModel, GenerationMixin):
         self.model.embed_tokens.weight = self.lm_head.weight
 
     def forward(
-        self,
-        input_ids: Optional[torch.Tensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        labels: Optional[torch.Tensor] = None,
-        past_key_values: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
-        use_cache: bool = False,
-        logits_to_keep: Union[int, torch.Tensor] = 0,
-        **args,
+            self,
+            input_ids: Optional[torch.Tensor] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            labels: Optional[torch.Tensor] = None,
+            past_key_values: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
+            use_cache: bool = False,
+            logits_to_keep: Union[int, torch.Tensor] = 0,
+            **args,
     ):
         hidden_states, past_key_values, aux_loss = self.model(
             input_ids=input_ids,
