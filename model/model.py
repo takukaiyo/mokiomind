@@ -258,7 +258,7 @@ class Attention(nn.Module):
         # 检查是否支持Flash Attention
         # hasattr(obj, 'attr'): 检查对象是否有指定属性
         # Flash Attention需要PyTorch >= 2.0
-        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention') and args.flash_attn
+        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention') and args.flash_attention
         # 如果不支持可以打印警告: print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
 
     def forward(self,
@@ -513,7 +513,14 @@ class MokioMindForCausalLM(PreTrainedModel, GenerationMixin):
             logits_to_keep: Union[int, torch.Tensor] = 0,
             **args,
     ):
-        hidden_states, past_key_values, aux_loss = self.model(
+        # hidden_states, past_key_values, aux_loss = self.model(
+        #     input_ids=input_ids,
+        #     attention_mask=attention_mask,
+        #     past_key_values=past_key_values,
+        #     use_cache=use_cache,
+        #     **args,
+        # )
+        hidden_states, past_key_values = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
             past_key_values=past_key_values,
@@ -544,10 +551,18 @@ class MokioMindForCausalLM(PreTrainedModel, GenerationMixin):
             past_key_values=past_key_values,
             hidden_states=hidden_states,
         )
-        output.aux_loss = aux_loss
+        # output.aux_loss = aux_loss
         return output
 
 
 if __name__ == '__main__':
     config = MokioMindConfig()
-    print(config)
+    model = MokioMindForCausalLM(config)
+
+    # quick shape check
+    B, T = 32, 32
+    x = torch.randint(0, config.vocab_size, (B, T))
+    out = model(input_ids=x, labels=x)
+    print(x)
+    print("logits:", out.logits.shape)  # [B, T, V]
+    print("loss:", out.loss.item())
