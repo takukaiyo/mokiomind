@@ -32,6 +32,23 @@ from torch.cuda.amp import GradScaler
 from contextlib import nullcontext
 from dataset.lm_dataset import PretrainDataset, SFTDataset
 
+# ── wandb（可选）──────────────────────────────────────────────────────────
+# wandb 是目前最主流的实验管理工具，用于记录训练指标、可视化 loss 曲线、
+# 对比不同实验的超参数和结果。
+#
+# 为什么用 wandb 而不是 tensorboard？
+#   - wandb 自动同步到云端，换电脑也能看历史实验
+#   - 支持超参数搜索、实验对比、团队协作
+#   - 和 HuggingFace 生态集成更好
+#   - 免费额度对个人研究者完全够用
+#
+# 设计为可选依赖：没装 wandb 也能正常训练，只是没有可视化。
+try:
+    import wandb
+    _WANDB_AVAILABLE = True
+except ImportError:
+    _WANDB_AVAILABLE = False
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1. 学习率调度：余弦退火（Cosine Annealing）
@@ -263,6 +280,18 @@ def pretrain_epoch(
             optimizer.zero_grad()
             current_step += 1
 
+            # ── wandb 记录（每个 step 都记录）──────────────────────────────
+            # 为什么每个 step 都记录而不是每个 log_interval？
+            #   wandb 会自动做平滑和下采样，原始数据越密越好。
+            #   记录的开销极小（微秒级），不会影响训练速度。
+            if _WANDB_AVAILABLE and wandb.run is not None:
+                wandb.log({
+                    "train/loss": loss.item() * grad_accum_steps,  # 还原真实 loss
+                    "train/lr": current_lr,
+                    "train/step": current_step,
+                    "train/epoch": epoch,
+                }, step=current_step)
+
         total_loss += loss.item() * grad_accum_steps  # 还原真实 loss 用于日志
 
         # ── 日志打印 ────────────────────────────────────────────────────────
@@ -356,6 +385,14 @@ def sft_epoch(
             scaler.update()
             optimizer.zero_grad()
             current_step += 1
+
+            if _WANDB_AVAILABLE and wandb.run is not None:
+                wandb.log({
+                    "train/loss": loss.item() * grad_accum_steps,
+                    "train/lr": current_lr,
+                    "train/step": current_step,
+                    "train/epoch": epoch,
+                }, step=current_step)
 
         total_loss += loss.item() * grad_accum_steps
 
