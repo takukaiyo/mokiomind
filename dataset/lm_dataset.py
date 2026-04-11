@@ -90,8 +90,8 @@ class PretrainDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, index):
+        # 拿到jsonl的没一行
         sample = self.samples[index]
-
         # Step 1：tokenize 原始文本，留出首尾各 1 个 token 的位置给 BOS/EOS
         tokens = self.tokenizer(
             str(sample["text"]),
