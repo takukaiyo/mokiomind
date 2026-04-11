@@ -472,3 +472,9 @@ def build_sft_dataloader(
         pin_memory=True,
         drop_last=True,
     )
+
+def torch_is_cuda():
+    return torch.cuda.is_available()
+
+if __name__ == '__main__':
+    print(torch_is_cuda())

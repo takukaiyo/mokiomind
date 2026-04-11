@@ -1,15 +1,61 @@
 [project]
 name = "mokiomind"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.13"
+description = "MokioMind LLM Pretraining Project"
+# 关键：锁定 Python 3.11，避免 3.13 的兼容性问题
+requires-python = ">=3.11,<3.12"
+
 dependencies = [
-    "datasets>=4.8.4",
-    "ipykernel>=7.2.0",
-    "numpy>=2.3.4",
-    "optional>=0.0.1",
-    "pandas>=2.3.3",
-    "torch>=2.9.0",
-    "transformers>=4.57.1",
-    "wandb>=0.19.0",
+    # 核心深度学习（CUDA 12.4 版本）
+    "torch>=2.6.0,<2.7.0",
+    "torchvision>=0.21.0,<0.22.0",
+    "torchaudio>=2.6.0,<2.7.0",
+
+    # 关键：numpy 必须 <2.0，否则 Windows CUDA 初始化失败
+    "numpy>=1.26.0,<2.0",
+
+    # HuggingFace 生态
+    "transformers>=4.40.0",
+    "datasets>=2.19.0",
+    "accelerate>=0.30.0",  # 多卡训练必需（DDP/DeepSpeed）
+
+    # 实验追踪
+    "wandb>=0.16.0",
+
+    # 数据处理
+    "pandas>=2.0.0",
+    "tqdm>=4.66.0",
+
+    # 开发工具（可选）
+    "ipykernel>=6.0.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "ruff>=0.4.0",
+]
+
+# ─────────────────────────────────────────────────────
+# uv 专用配置：指定镜像源（自动使用清华 + PyTorch 官方 CUDA 源）
+# ─────────────────────────────────────────────────────
+[[tool.uv.index]]
+name = "default"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true  # 只为 torch 系列使用此源
+
+# 强制 torch 从 CUDA 12.4 索引安装（避免装成 CPU 版）
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }
+torchvision = { index = "pytorch-cu124" }
+torchaudio = { index = "pytorch-cu124" }
+
+# ─────────────────────────────────────────────────────
+# 如果你用 pip 而不是 uv，请手动安装 torch：
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+# ─────────────────────────────────────────────────────
