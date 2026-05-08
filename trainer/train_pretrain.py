@@ -157,7 +157,7 @@ def main():
     print(f"[Init] 训练设备: {device}")
     if device.type == "cuda":
         print(f"[Init] GPU: {torch.cuda.get_device_name(0)}")
-        print(f"[Init] 显存: {torch.cuda.get_device_properties(0).total_mem / 1024**3:.1f} GB")
+        print(f"[Init] 显存: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
 
     # ── Step 2：加载 tokenizer ────────────────────────────────────────────
     # tokenizer 的作用：文字 ↔ 数字 的双向转换器
