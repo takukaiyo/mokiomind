@@ -6,10 +6,10 @@ description = "MokioMind LLM Pretraining Project"
 requires-python = ">=3.11,<3.12"
 
 dependencies = [
-    # 核心深度学习（CUDA 12.4 版本）
-    "torch>=2.6.0,<2.7.0",
-    "torchvision>=0.21.0,<0.22.0",
-    "torchaudio>=2.6.0,<2.7.0",
+    # 核心深度学习（CUDA 12.8 版本，支持 RTX 5090 / sm_120）
+    "torch>=2.7.0,<2.8.0",
+    "torchvision>=0.22.0,<0.23.0",
+    "torchaudio>=2.7.0,<2.8.0",
 
     # 关键：numpy 必须 <2.0，否则 Windows CUDA 初始化失败
     "numpy>=1.26.0,<2.0",
@@ -45,17 +45,17 @@ name = "default"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 
 [[tool.uv.index]]
-name = "pytorch-cu124"
-url = "https://download.pytorch.org/whl/cu124"
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true  # 只为 torch 系列使用此源
 
-# 强制 torch 从 CUDA 12.4 索引安装（避免装成 CPU 版）
+# 强制 torch 从 CUDA 12.8 索引安装（避免装成 CPU 版）
 [tool.uv.sources]
-torch = { index = "pytorch-cu124" }
-torchvision = { index = "pytorch-cu124" }
-torchaudio = { index = "pytorch-cu124" }
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }
 
 # ─────────────────────────────────────────────────────
 # 如果你用 pip 而不是 uv，请手动安装 torch：
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 # ─────────────────────────────────────────────────────

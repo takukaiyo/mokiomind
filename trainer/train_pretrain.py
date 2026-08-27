@@ -68,7 +68,7 @@ def parse_args():
 
     # ── 数据相关 ──
     parser.add_argument(
-        "--data_path", type=str, default="data/pretrain_data.jsonl",
+        "--data_path", type=str, default="/data/yezhuohai/data/minimind_dataset/pretrain_t2t_mini.jsonl",
         help="预训练数据路径，jsonl 格式，每行一个 {\"text\": \"...\"}",
     )
     parser.add_argument(

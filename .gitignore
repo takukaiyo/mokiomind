@@ -1,0 +1,10 @@
+﻿.venv/
+.idea/
+__pycache__/
+*.pyc
+minimind_dataset/
+checkpoints/
+wandb/
+model_study.py
+pytorch_function.ipynb
+学习笔记.md

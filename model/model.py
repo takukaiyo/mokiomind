@@ -496,12 +496,30 @@ class MokioMindModel(nn.Module):
 
 class MokioMindForCausalLM(PreTrainedModel, GenerationMixin):
     config_class = MokioMindConfig
+    _tied_weights_keys = {"lm_head.weight": "model.embed_tokens.weight"}
 
     def __init__(self, config: MokioMindConfig):
         super().__init__(config)
         self.model = MokioMindModel(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-        self.model.embed_tokens.weight = self.lm_head.weight
+        self.all_tied_weights_keys = self.get_expanded_tied_weights_keys()
+        self.tie_weights()
+
+    def get_input_embeddings(self):
+        return self.model.embed_tokens
+
+    def set_input_embeddings(self, value):
+        self.model.embed_tokens = value
+
+    def get_output_embeddings(self):
+        return self.lm_head
+
+    def set_output_embeddings(self, new_embeddings):
+        self.lm_head = new_embeddings
+
+    def tie_weights(self, missing_keys: set[str] | None = None, recompute_mapping: bool = True):
+        super().tie_weights(missing_keys=missing_keys, recompute_mapping=recompute_mapping)
+        self.lm_head.weight = self.model.embed_tokens.weight
 
     def forward(
             self,
